@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Study Buddy</title>
+    <style>
+        /* CSS Variables for easy theme management */
+        :root {
+            --bg-page: #FDF6E3;
+            --bg-container: #FFFFFF;
+            --bg-section: #F1F5F9;
+            --text-main: #2D2D2D;
+            --text-sub: #718096;
+            --primary: #D47A56; /* Terracotta */
+            --accent: #E29578;
+            --progress: #E9C46A; /* Soft Gold */
+            --success: #10B981;
+            --border: #cbd5e0;
+        }
+
+        body.dark-mode {
+            --bg-page: #555D42; /* Olive Drab */
+            --bg-container: #3E4531; 
+            --bg-section: #7B8468; /* Muted Sage */
+            --text-main: #FDF6E3;
+            --text-sub: #D1D5DB;
+            --primary: #C66A47; /* Deep Clay */
+            --accent: #FFB085;
+            --border: #4A5568;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding: 30px 20px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: var(--bg-container);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        h1 {
+            text-align: center;
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 42px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: var(--text-sub);
+            margin-bottom: 40px;
+            font-size: 16px;
+        }
+        
+        h2 {
+            color: white;
+            background: var(--primary);
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-top: 0;
+            font-size: 16px;
+            text-align: center;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .section {
+            background: var(--bg-section);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+        }
+        
+        .section:hover {
+            transform: translateY(-5px);
+        }
+        
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        label {
+            font-weight: 600;
+            color: var(--text-main);
+            font-size: 14px;
+            margin-top: 8px;
+        }
+        
+        input {
+            padding: 10px 12px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            background: var(--bg-container);
+            color: var(--text-main);
+            transition: all 0.3s ease;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(212, 122, 86, 0.1);
+        }
+        
+        button {
+            padding: 10px 12px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--primary);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            z-index: 1000;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+        
+        #output {
+            background: var(--bg-section);
+            border-radius: 12px;
+            padding: 20px;
+            color: var(--text-main);
+            margin-top: 40px;
+            min-height: 200px;
+        }
+
+        .plan-section {
+            margin-bottom: 25px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .plan-section h3 {
+            margin: 0 0 15px 0;
+            color: var(--text-main);
+        }
+
+        .milestone-card {
+            background: var(--bg-section);
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 6px;
+            border-left: 4px solid var(--accent);
+        }
+
+        .priority-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-left: 10px;
+            background: var(--progress);
+            color: #2D2D2D;
+        }
+
+        .task-table, .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .task-table th, .schedule-table th {
+            background: var(--primary);
+            color: white;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .task-table td, .schedule-table td {
+            padding: 8px 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .task-table tr:hover, .schedule-table tr:hover {
+            background: var(--bg-section);
+        }
+
+        .completed {
+            text-decoration: line-through;
+            color: var(--text-sub);
+        }
+
+        .message {
+            padding: 12px;
+            background: var(--success);
+            color: white;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .message.error {
+            background: #EF4444;
+        }
+
+        body.dark-mode .plan-section {
+            background: var(--bg-section);
+            color: var(--text-main);
+        }
+
+        body.dark-mode input {
+            background: var(--bg-container);
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" id="themeToggle">🌙</button>
+    <div class="container">
+        <h1>🎓 Smart Study Buddy</h1>
+        <p class="subtitle">Your AI-Powered Study Mate</p>
+
+        <div class="grid">
+            <div class="section">
+                <h2>Add Subject</h2>
+                <form id="subjectForm">
+                    <label>Subject Name:</label>
+                    <input type="text" id="name" placeholder="e.g. Physics" required>
+                    <label>Syllabus (topics):</label>
+                    <input type="text" id="syllabus" placeholder="Topic 1, Topic 2..." required>
+                    <label>Exam Date:</label>
+                    <input type="date" id="exam_date" required>
+                    <label>Daily Study Hours:</label>
+                    <input type="number" step="0.5" id="daily_hours" required>
+                    <button type="submit">Add Subject</button>
+                </form>
+            </div>
+
+            <div class="section">
+                <h2>Create Plan</h2>
+                <form id="planForm">
+                    <label>Subject ID:</label>
+                    <input type="number" id="subject_id" required>
+                    <button type="submit">Create Plan</button>
+                </form>
+            </div>
+
+            <div class="section">
+                <h2>Get Plan</h2>
+                <form id="getPlanForm">
+                    <label>Subject ID:</label>
+                    <input type="number" id="get_subject_id" required>
+                    <button type="submit">Get Plan</button>
+                </form>
+            </div>
+
+            <div class="section">
+                <h2>Mark Task Complete</h2>
+                <form id="completeForm">
+                    <label>Task ID:</label>
+                    <input type="number" id="task_id" required>
+                    <button type="submit">Mark Complete</button>
+                </form>
+            </div>
+
+            <div class="section">
+                <h2>Adapt Plan</h2>
+                <form id="adaptForm">
+                    <label>Subject ID:</label>
+                    <input type="number" id="adapt_subject_id" required>
+                    <button type="submit">Adapt Plan</button>
+                </form>
+            </div>
+
+            <div class="section">
+                <h2>Reset Database</h2>
+                <form id="resetForm">
+                    <button type="submit">Clear All Data</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="output">Results will appear here...</div>
+    </div>
+
+    <script>
+        // Theme Toggle Logic
+        const themeToggle = document.getElementById('themeToggle');
+        
+        // Load saved theme
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            themeToggle.textContent = isDark ? '☀️' : '🌙';
+        });
+
+        const API_BASE = 'http://127.0.0.1:8000';
+
+        document.getElementById('subjectForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = {
+                name: document.getElementById('name').value,
+                syllabus: document.getElementById('syllabus').value,
+                exam_date: document.getElementById('exam_date').value,
+                daily_hours: parseFloat(document.getElementById('daily_hours').value)
+            };
+            try {
+                const response = await fetch(`${API_BASE}/subjects`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                document.getElementById('output').innerHTML = `<div class="message">✓ Subject added with ID: ${result.subject_id}</div>`;
+            } catch (error) {
+                document.getElementById('output').innerHTML = `<div class="message error">Error: ${error.message}</div>`;
+            }
+        });
+
+        document.getElementById('planForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const subjectId = document.getElementById('subject_id').value;
+            try {
+                const response = await fetch(`${API_BASE}/plan/${subjectId}`, { method: 'POST' });
+                const result = await response.json();
+                document.getElementById('output').innerHTML = `<div class="message">✓ Plan created for subject ${subjectId}</div>`;
+            } catch (error) {
+                document.getElementById('output').innerHTML = `<div class="message error">Error: ${error.message}</div>`;
+            }
+        });
+
+        document.getElementById('getPlanForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const subjectId = document.getElementById('get_subject_id').value;
+            try {
+                const response = await fetch(`${API_BASE}/plan/${subjectId}`);
+                const result = await response.json();
+                
+                let html = `<div class="message">✓ Plan for subject ${subjectId}</div>`;
+                
+                if (result.milestones && result.milestones.length > 0) {
+                    html += `<div class="plan-section"><h3>📚 Milestones</h3>`;
+                    result.milestones.forEach(m => {
+                        html += `<div class="milestone-card"><strong>${m.topic}</strong><span class="priority-badge">${m.priority}</span></div>`;
+                    });
+                    html += `</div>`;
+                }
+                
+                if (result.tasks && result.tasks.length > 0) {
+                    html += `<div class="plan-section"><h3>✓ Tasks</h3><table class="task-table"><tr><th>Task</th><th>Hours</th><th>Due Date</th><th>Status</th></tr>`;
+                    result.tasks.forEach(t => {
+                        const status = t.completed ? '✓ Done' : '○ Pending';
+                        const statusClass = t.completed ? 'completed' : '';
+                        html += `<tr><td class="${statusClass}">${t.description}</td><td>${t.hours}h</td><td>${t.due_date}</td><td>${status}</td></tr>`;
+                    });
+                    html += `</table></div>`;
+                }
+                
+                if (result.schedules && result.schedules.length > 0) {
+                    html += `<div class="plan-section"><h3>📅 Study Schedule</h3><table class="schedule-table"><tr><th>Date</th><th>Task ID</th><th>Time</th></tr>`;
+                    result.schedules.forEach(s => {
+                        html += `<tr><td>${s.date}</td><td>Task #${s.task_id}</td><td>${s.start_time} - ${s.end_time}</td></tr>`;
+                    });
+                    html += `</table></div>`;
+                }
+                
+                document.getElementById('output').innerHTML = html;
+            } catch (error) {
+                document.getElementById('output').innerHTML = `<div class="message error">Error: ${error.message}</div>`;
+            }
+        });
+
+        document.getElementById('completeForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const taskId = document.getElementById('task_id').value;
+            try {
+                const response = await fetch(`${API_BASE}/tasks/${taskId}/complete`, { method: 'PUT' });
+                const result = await response.json();
+                document.getElementById('output').innerHTML = `<div class="message">✓ Task ${taskId} marked complete</div>`;
+            } catch (error) {
+                document.getElementById('output').innerHTML = `<div class="message error">Error: ${error.message}</div>`;
+            }
+        });
+
+        document.getElementById('adaptForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const subjectId = document.getElementById('adapt_subject_id').value;
+            try {
+                const response = await fetch(`${API_BASE}/adapt/${subjectId}`, { method: 'POST' });
+                const result = await response.json();
+                document.getElementById('output').innerHTML = `<div class="message">✓ Plan adapted for subject ${subjectId}</div>`;
+            } catch (error) {
+                document.getElementById('output').innerHTML = `<div class="message error">Error: ${error.message}</div>`;
+            }
+        });
+
+        document.getElementById('resetForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            try {
+                const response = await fetch(`${API_BASE}/reset`, { method: 'POST' });
+                const result = await response.json();
+                document.getElementById('output').innerHTML = `<div class="message">✓ Database reset. Refresh page to start fresh.</div>`;
+            } catch (error) {
+                document.getElementById('output').innerHTML = `<div class="message error">Error: ${error.message}</div>`;
+            }
+        });
+    </script>
+</body>
+</html>
