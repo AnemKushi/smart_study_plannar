@@ -1,11 +1,12 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
-from database import Database
-from planner import PlannerAgent
-from task_agent import TaskAgent
-from scheduler_agent import SchedulerAgent
-from adaptive_agent import AdaptiveAgent
+
+from .database import Database
+from .planner import PlannerAgent
+from .task_agent import TaskAgent
+from .scheduler_agent import SchedulerAgent
+from .adaptive_agent import AdaptiveAgent
 
 app = FastAPI(
     title="Smart Study Planner",
@@ -39,8 +40,8 @@ def root():
 # -----------------------------
 class SubjectInput(BaseModel):
     name: str
-    syllabus: str  # Comma-separated topics
-    exam_date: str  # YYYY-MM-DD
+    syllabus: str
+    exam_date: str
     daily_hours: float
 
 
@@ -140,43 +141,10 @@ def get_plan(subject_id: int):
 
         schedules = [s for s in db.get_schedules() if s[1] in task_ids]
 
-        formatted_milestones = [
-            {
-                "id": m[0],
-                "subject_id": m[1],
-                "topic": m[2],
-                "priority": ["High", "Medium", "Low"][m[3] - 1]
-            }
-            for m in milestones
-        ]
-
-        formatted_tasks = [
-            {
-                "id": t[0],
-                "milestone_id": t[1],
-                "description": t[2],
-                "hours": t[3],
-                "due_date": t[4],
-                "completed": bool(t[5])
-            }
-            for t in tasks
-        ]
-
-        formatted_schedules = [
-            {
-                "id": s[0],
-                "task_id": s[1],
-                "date": s[2],
-                "start_time": s[3],
-                "end_time": s[4]
-            }
-            for s in schedules
-        ]
-
         return {
-            "milestones": formatted_milestones,
-            "tasks": formatted_tasks,
-            "schedules": formatted_schedules
+            "milestones": milestones,
+            "tasks": tasks,
+            "schedules": schedules
         }
 
     except Exception as e:
@@ -239,7 +207,6 @@ def reset_database():
         if os.path.exists("study_planner.db"):
             os.remove("study_planner.db")
 
-        # Reinitialize DB
         global db
         db = Database()
 
@@ -247,11 +214,3 @@ def reset_database():
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-
-# -----------------------------
-# RUN SERVER
-# -----------------------------
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8000)

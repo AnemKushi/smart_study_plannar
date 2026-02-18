@@ -1,4 +1,4 @@
-from database import Database
+from .database import Database
 from datetime import datetime, timedelta, time
 
 class SchedulerAgent:
