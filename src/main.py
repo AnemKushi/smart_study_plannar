@@ -1,11 +1,11 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
-from database import Database
-from planner import PlannerAgent
-from task_agent import TaskAgent
-from scheduler_agent import SchedulerAgent
-from adaptive_agent import AdaptiveAgent
+from src.database import Database
+from src.planner import PlannerAgent
+from src.task_agent import TaskAgent
+from src.scheduler_agent import SchedulerAgent
+from src.adaptive_agent import AdaptiveAgent
 
 app = FastAPI(
     title="Smart Study Planner",
